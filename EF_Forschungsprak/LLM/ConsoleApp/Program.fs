@@ -47,8 +47,21 @@ let repeatAnswer () =
     let readAnswer = Console.ReadLine()
     readAnswer
 
+let getPrompt () =
+    task{
+        Console.WriteLine("Your Prompt")
+        let input = Console.ReadLine()
+        if String.IsNullOrWhiteSpace(input) then
+            Console.WriteLine("Bitte Text eingeben")
+        else
+            let messages = [ChatMessage(ChatRole.User, input)]
+            let! response = chatClient.GetResponseAsync(messages)
+            Console.WriteLine("AI: " + response.ToString())
+    }
+    |> Async.AwaitTask
+    |> Async.RunSynchronously
+
 [<EntryPoint>]
 let main _ =
-    let result = repeatAnswer()
-    printfn "%s" result
+    getPrompt()
     0

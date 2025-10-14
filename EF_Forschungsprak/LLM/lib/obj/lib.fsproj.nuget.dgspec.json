@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\emref\\source\\repos\\EF_Forschungsprojekt\\EF_Forschungsprak\\LLM\\ConsoleApp\\LLM_TEST.fsproj": {}
+    "C:\\Users\\emref\\source\\repos\\EF_Forschungsprojekt\\EF_Forschungsprak\\LLM\\lib\\lib.fsproj": {}
   },
   "projects": {
-    "C:\\Users\\emref\\source\\repos\\EF_Forschungsprojekt\\EF_Forschungsprak\\LLM\\ConsoleApp\\LLM_TEST.fsproj": {
+    "C:\\Users\\emref\\source\\repos\\EF_Forschungsprojekt\\EF_Forschungsprak\\LLM\\lib\\lib.fsproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\emref\\source\\repos\\EF_Forschungsprojekt\\EF_Forschungsprak\\LLM\\ConsoleApp\\LLM_TEST.fsproj",
-        "projectName": "LLM_TEST",
-        "projectPath": "C:\\Users\\emref\\source\\repos\\EF_Forschungsprojekt\\EF_Forschungsprak\\LLM\\ConsoleApp\\LLM_TEST.fsproj",
+        "projectUniqueName": "C:\\Users\\emref\\source\\repos\\EF_Forschungsprojekt\\EF_Forschungsprak\\LLM\\lib\\lib.fsproj",
+        "projectName": "lib",
+        "projectPath": "C:\\Users\\emref\\source\\repos\\EF_Forschungsprojekt\\EF_Forschungsprak\\LLM\\lib\\lib.fsproj",
         "packagesPath": "C:\\Users\\emref\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\emref\\source\\repos\\EF_Forschungsprojekt\\EF_Forschungsprak\\LLM\\ConsoleApp\\obj\\",
+        "outputPath": "C:\\Users\\emref\\source\\repos\\EF_Forschungsprojekt\\EF_Forschungsprak\\LLM\\lib\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -22,7 +22,7 @@
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
-          "net9.0"
+          "netstandard2.0"
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
@@ -30,8 +30,8 @@
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
-          "net9.0": {
-            "targetAlias": "net9.0",
+          "netstandard2.0": {
+            "targetAlias": "netstandard2.0",
             "projectReferences": {}
           }
         },
@@ -43,8 +43,8 @@
         "SdkAnalysisLevel": "9.0.300"
       },
       "frameworks": {
-        "net9.0": {
-          "targetAlias": "net9.0",
+        "netstandard2.0": {
+          "targetAlias": "netstandard2.0",
           "dependencies": {
             "FSharp.Core": {
               "include": "Runtime, Compile, Build, Native, Analyzers, BuildTransitive",
@@ -55,6 +55,13 @@
             "Microsoft.Extensions.AI": {
               "target": "Package",
               "version": "[9.9.1, )",
+              "generatePathProperty": true
+            },
+            "NETStandard.Library": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[2.0.3, )",
+              "autoReferenced": true,
               "generatePathProperty": true
             },
             "OllamaSharp": {
@@ -74,12 +81,7 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
-          "frameworkReferences": {
-            "Microsoft.NETCore.App": {
-              "privateAssets": "all"
-            }
-          },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.304/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.304\\RuntimeIdentifierGraph.json"
         }
       }
     }
