@@ -33,10 +33,8 @@ module LLM_Modal =
         | Phi4 -> "phi4:14b"
         | Gemma -> "gemma:7b"
 
-module LLM =
-
-    type ChatClient (model: LLM_Modal.Modal) =
-        let client : IChatClient = new OllamaApiClient(new Uri("http://localhost:11434/"), LLM_Modal.modalname model)
+    type ChatClient (model: Modal) =
+        let client : IChatClient = new OllamaApiClient(new Uri("http://localhost:11434/"), modalname model)
 
         member _.GetPrompt(prompt: string) =
             let taskResult = task{

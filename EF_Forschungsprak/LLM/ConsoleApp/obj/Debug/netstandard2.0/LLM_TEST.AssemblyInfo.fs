@@ -10,7 +10,7 @@ open System.Reflection
 [<assembly: System.Reflection.AssemblyCompanyAttribute("LLM_TEST")>]
 [<assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")>]
 [<assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")>]
-[<assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+1a43d1752d3f9cdb6978551f94ebffeb29315d48")>]
+[<assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+71547e93e80b24cf9b0a47a728c9da1efa7cc5cd")>]
 [<assembly: System.Reflection.AssemblyProductAttribute("LLM_TEST")>]
 [<assembly: System.Reflection.AssemblyTitleAttribute("LLM_TEST")>]
 [<assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")>]
