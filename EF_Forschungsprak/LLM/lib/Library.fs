@@ -396,16 +396,33 @@ module Prompt =
         getResponse client prompt
         |> _.ToString()
 
-    let rec getResponseWithChatHistoryInteractive (client: IChatClient) =
-        let chatHistory = List<ChatMessage>()
+    let getResponseTextWithChatHistoryText (client: IChatClient) (chatHistory: List<ChatMessage>) (prompt: string) =
+        task{
+            if String.IsNullOrWhiteSpace(prompt) then
+                Console.WriteLine("Please specify answer!")
+                return ""
+            else
+                chatHistory.Add(ChatMessage(ChatRole.User, prompt))
+                let messages = chatHistory |> Seq.toList
+                let! response = client.GetResponseAsync(messages)
+                chatHistory.Add(ChatMessage(ChatRole.Assistant, response.Text))
+                return response.Text
+        }
+        |> Async.AwaitTask
+        |> Async.RunSynchronously
+
+
+    let rec getResponseWithChatHistoryInteractive (chatHistory: List<ChatMessage>) (client: IChatClient) =
         task{
             Console.WriteLine("\nYour prompt: ")
             let userPrompt = Console.ReadLine()
+
             if String.IsNullOrWhiteSpace(userPrompt) then
-                Console.WriteLine("Please specify your answer!")
-                return! getResponseWithChatHistoryInteractive client
+                Console.WriteLine("Please specify answer!")
+                return! getResponseWithChatHistoryInteractive chatHistory client 
             else
                 chatHistory.Add(ChatMessage(ChatRole.User, userPrompt))
+                printf "AI; "
 
                 let sb = StringBuilder()
                 let enumerator = client.GetStreamingResponseAsync(chatHistory).GetAsyncEnumerator()
@@ -413,18 +430,16 @@ module Prompt =
                     while! enumerator.MoveNextAsync() do
                         let item = enumerator.Current
                         if not (String.IsNullOrEmpty(item.Text)) then
+                            Console.WriteLine(item.Text)
+                            Console.Out.Flush()
                             sb.Append(item.Text) |> ignore
+                    Console.WriteLine()
                 finally
                     do enumerator.DisposeAsync() |> ignore
-                
-                let aiResponse = sb.ToString()
-                chatHistory.Add(ChatMessage(ChatRole.Assistant, aiResponse))
-                Console.WriteLine("AI: " + aiResponse)
-                return! getResponseWithChatHistoryInteractive client
-        }
-        |> Async.AwaitTask
-        |> Async.RunSynchronously
 
+                chatHistory.Add(ChatMessage(ChatRole.Assistant, sb.ToString()))
+                return! getResponseWithChatHistoryInteractive chatHistory client 
+        }
 
 
 // open System

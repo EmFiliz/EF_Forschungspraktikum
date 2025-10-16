@@ -113,9 +113,20 @@
               "version": "[8.0.101, )",
               "generatePathProperty": true
             },
+            "Microsoft.Bcl.AsyncInterfaces": {
+              "target": "Package",
+              "version": "[9.0.10, )",
+              "generatePathProperty": true
+            },
             "Microsoft.Extensions.AI": {
               "target": "Package",
-              "version": "[9.10.0, )"
+              "version": "[9.10.0, )",
+              "generatePathProperty": true
+            },
+            "OllamaSharp": {
+              "target": "Package",
+              "version": "[5.4.7, )",
+              "generatePathProperty": true
             }
           },
           "imports": [

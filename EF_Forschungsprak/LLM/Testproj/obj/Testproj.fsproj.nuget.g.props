@@ -13,6 +13,9 @@
     <SourceRoot Include="C:\Users\filiz\.nuget\packages\" />
   </ItemGroup>
   <PropertyGroup Condition=" '$(ExcludeRestorePackageImports)' != 'true' ">
+    <PkgOllamaSharp Condition=" '$(PkgOllamaSharp)' == '' ">C:\Users\filiz\.nuget\packages\ollamasharp\5.4.7</PkgOllamaSharp>
+    <PkgMicrosoft_Extensions_AI Condition=" '$(PkgMicrosoft_Extensions_AI)' == '' ">C:\Users\filiz\.nuget\packages\microsoft.extensions.ai\9.10.0</PkgMicrosoft_Extensions_AI>
+    <PkgMicrosoft_Bcl_AsyncInterfaces Condition=" '$(PkgMicrosoft_Bcl_AsyncInterfaces)' == '' ">C:\Users\filiz\.nuget\packages\microsoft.bcl.asyncinterfaces\9.0.10</PkgMicrosoft_Bcl_AsyncInterfaces>
     <PkgFSharp_Core Condition=" '$(PkgFSharp_Core)' == '' ">C:\Users\filiz\.nuget\packages\fsharp.core\8.0.101</PkgFSharp_Core>
   </PropertyGroup>
 </Project>

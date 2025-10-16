@@ -56,6 +56,22 @@
           }
         }
       },
+      "Microsoft.Bcl.AsyncInterfaces/9.0.10": {
+        "type": "package",
+        "compile": {
+          "lib/netstandard2.1/Microsoft.Bcl.AsyncInterfaces.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/netstandard2.1/Microsoft.Bcl.AsyncInterfaces.dll": {
+            "related": ".xml"
+          }
+        },
+        "build": {
+          "buildTransitive/net8.0/_._": {}
+        }
+      },
       "Microsoft.Extensions.AI/9.10.0": {
         "type": "package",
         "dependencies": {
@@ -232,6 +248,32 @@
         "lib/netstandard2.1/tr/FSharp.Core.resources.dll",
         "lib/netstandard2.1/zh-Hans/FSharp.Core.resources.dll",
         "lib/netstandard2.1/zh-Hant/FSharp.Core.resources.dll"
+      ]
+    },
+    "Microsoft.Bcl.AsyncInterfaces/9.0.10": {
+      "sha512": "iUfw06CsVKAliec4ML6Q91ozbQ8SKbiraIiQegECAPeMY8cGGagIbyZ9+PBtTJ0hx1//qpRqdXDkt51SDQ6k+Q==",
+      "type": "package",
+      "path": "microsoft.bcl.asyncinterfaces/9.0.10",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "Icon.png",
+        "LICENSE.TXT",
+        "PACKAGE.md",
+        "THIRD-PARTY-NOTICES.TXT",
+        "buildTransitive/net461/Microsoft.Bcl.AsyncInterfaces.targets",
+        "buildTransitive/net462/_._",
+        "buildTransitive/net8.0/_._",
+        "buildTransitive/netcoreapp2.0/Microsoft.Bcl.AsyncInterfaces.targets",
+        "lib/net462/Microsoft.Bcl.AsyncInterfaces.dll",
+        "lib/net462/Microsoft.Bcl.AsyncInterfaces.xml",
+        "lib/netstandard2.0/Microsoft.Bcl.AsyncInterfaces.dll",
+        "lib/netstandard2.0/Microsoft.Bcl.AsyncInterfaces.xml",
+        "lib/netstandard2.1/Microsoft.Bcl.AsyncInterfaces.dll",
+        "lib/netstandard2.1/Microsoft.Bcl.AsyncInterfaces.xml",
+        "microsoft.bcl.asyncinterfaces.9.0.10.nupkg.sha512",
+        "microsoft.bcl.asyncinterfaces.nuspec",
+        "useSharedDesignerContext.txt"
       ]
     },
     "Microsoft.Extensions.AI/9.10.0": {
@@ -473,7 +515,9 @@
   "projectFileDependencyGroups": {
     "net8.0": [
       "FSharp.Core >= 8.0.101",
+      "Microsoft.Bcl.AsyncInterfaces >= 9.0.10",
       "Microsoft.Extensions.AI >= 9.10.0",
+      "OllamaSharp >= 5.4.7",
       "lib >= 1.0.0"
     ]
   },
@@ -520,9 +564,20 @@
             "version": "[8.0.101, )",
             "generatePathProperty": true
           },
+          "Microsoft.Bcl.AsyncInterfaces": {
+            "target": "Package",
+            "version": "[9.0.10, )",
+            "generatePathProperty": true
+          },
           "Microsoft.Extensions.AI": {
             "target": "Package",
-            "version": "[9.10.0, )"
+            "version": "[9.10.0, )",
+            "generatePathProperty": true
+          },
+          "OllamaSharp": {
+            "target": "Package",
+            "version": "[5.4.7, )",
+            "generatePathProperty": true
           }
         },
         "imports": [
