@@ -1,0 +1,17 @@
+{
+  "version": 2,
+  "dgSpecHash": "/YUilVk7fUoab0oQ+gArN9VahVHEIR2I9bIrRZef91tESFkliRZAdMdEtZr/IoxpFPnekQ3n5jTQ2ZxU0J3wZA==",
+  "success": true,
+  "projectFilePath": "H:\\EF_Forschungspraktikum\\EF_Forschungsprak\\LLM\\Testproj\\Testproj.fsproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\filiz\\.nuget\\packages\\fsharp.core\\8.0.101\\fsharp.core.8.0.101.nupkg.sha512",
+    "C:\\Users\\filiz\\.nuget\\packages\\microsoft.extensions.ai\\9.10.0\\microsoft.extensions.ai.9.10.0.nupkg.sha512",
+    "C:\\Users\\filiz\\.nuget\\packages\\microsoft.extensions.ai.abstractions\\9.10.0\\microsoft.extensions.ai.abstractions.9.10.0.nupkg.sha512",
+    "C:\\Users\\filiz\\.nuget\\packages\\microsoft.extensions.caching.abstractions\\8.0.0\\microsoft.extensions.caching.abstractions.8.0.0.nupkg.sha512",
+    "C:\\Users\\filiz\\.nuget\\packages\\microsoft.extensions.dependencyinjection.abstractions\\8.0.2\\microsoft.extensions.dependencyinjection.abstractions.8.0.2.nupkg.sha512",
+    "C:\\Users\\filiz\\.nuget\\packages\\microsoft.extensions.logging.abstractions\\8.0.3\\microsoft.extensions.logging.abstractions.8.0.3.nupkg.sha512",
+    "C:\\Users\\filiz\\.nuget\\packages\\microsoft.extensions.primitives\\8.0.0\\microsoft.extensions.primitives.8.0.0.nupkg.sha512",
+    "C:\\Users\\filiz\\.nuget\\packages\\ollamasharp\\5.4.7\\ollamasharp.5.4.7.nupkg.sha512"
+  ],
+  "logs": []
+}

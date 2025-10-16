@@ -204,7 +204,7 @@ type Model =
         | Llama3_2_3B -> "llama3.2:3b"
         | Mistral_7B -> "mistral:7b"
         | Qwen2_5_7B -> "qwen2.5:7b"
-        | Phi3_3_8B -> "phi3:3.8b"
+        | Phi3_3_8B -> "phi3:latest"
         | Llava_7B -> "llava:7b"
         | Llama3_8B -> "llama3:8b"
         | Gemma2_9B -> "gemma2:9b"
@@ -395,6 +395,37 @@ module Prompt =
     let getResponseText (client: IChatClient) (prompt: string) = 
         getResponse client prompt
         |> _.ToString()
+
+    let rec getResponseWithChatHistoryInteractive (client: IChatClient) =
+        let chatHistory = List<ChatMessage>()
+        task{
+            Console.WriteLine("\nYour prompt: ")
+            let userPrompt = Console.ReadLine()
+            if String.IsNullOrWhiteSpace(userPrompt) then
+                Console.WriteLine("Please specify your answer!")
+                return! getResponseWithChatHistoryInteractive client
+            else
+                chatHistory.Add(ChatMessage(ChatRole.User, userPrompt))
+
+                let sb = StringBuilder()
+                let enumerator = client.GetStreamingResponseAsync(chatHistory).GetAsyncEnumerator()
+                try
+                    while! enumerator.MoveNextAsync() do
+                        let item = enumerator.Current
+                        if not (String.IsNullOrEmpty(item.Text)) then
+                            sb.Append(item.Text) |> ignore
+                finally
+                    do enumerator.DisposeAsync() |> ignore
+                
+                let aiResponse = sb.ToString()
+                chatHistory.Add(ChatMessage(ChatRole.Assistant, aiResponse))
+                Console.WriteLine("AI: " + aiResponse)
+                return! getResponseWithChatHistoryInteractive client
+        }
+        |> Async.AwaitTask
+        |> Async.RunSynchronously
+
+
 
 // open System
 // open System.Text

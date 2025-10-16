@@ -7,11 +7,11 @@ open System
 open System.Reflection
 
 
-[<assembly: System.Reflection.AssemblyCompanyAttribute("lib")>]
+[<assembly: System.Reflection.AssemblyCompanyAttribute("Testproj")>]
 [<assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")>]
 [<assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")>]
 [<assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+54fac126853026a5db7836fcedd0ee4bf6c1aee4")>]
-[<assembly: System.Reflection.AssemblyProductAttribute("lib")>]
-[<assembly: System.Reflection.AssemblyTitleAttribute("lib")>]
+[<assembly: System.Reflection.AssemblyProductAttribute("Testproj")>]
+[<assembly: System.Reflection.AssemblyTitleAttribute("Testproj")>]
 [<assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")>]
 do()
