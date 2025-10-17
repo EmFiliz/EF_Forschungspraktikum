@@ -43,7 +43,7 @@ let rec chatLoop () =
 
 [<EntryPoint>]
 let main _ = 
-    Prompt.getResponseWithChatHistoryInteractive chatHistory (Model.initClient(Model.Gpt_oss_20B)) 
+    chatLoop()
     |> Async.AwaitTask
     |> Async.RunSynchronously
     0
