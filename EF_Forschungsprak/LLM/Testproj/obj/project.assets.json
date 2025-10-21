@@ -2,7 +2,7 @@
   "version": 3,
   "targets": {
     "net8.0": {
-      "FSharp.Core/8.0.101": {
+      "FSharp.Core/9.0.303": {
         "type": "package",
         "compile": {
           "lib/netstandard2.1/FSharp.Core.dll": {
@@ -194,7 +194,7 @@
         "type": "project",
         "framework": ".NETStandard,Version=v2.0",
         "dependencies": {
-          "FSharp.Core": "8.0.101",
+          "FSharp.Core": "9.0.303",
           "Microsoft.Extensions.AI": "9.9.1",
           "OllamaSharp": "5.4.7"
         },
@@ -208,15 +208,15 @@
     }
   },
   "libraries": {
-    "FSharp.Core/8.0.101": {
-      "sha512": "sOLz3O4BOxnTKfd5OChdRmDUy4Id0GfoEClRG4nzIod8LY1LJZcNyygKAV0A78XOLh8yvhA5hsDYKZXGCR9blw==",
+    "FSharp.Core/9.0.303": {
+      "sha512": "6JlV8aD8qQvcmfoe/PMOxCHXc0uX4lR23u0fAyQtnVQxYULLoTZgwgZHSnRcuUHOvS3wULFWcwdnP1iwslH60g==",
       "type": "package",
-      "path": "fsharp.core/8.0.101",
+      "path": "fsharp.core/9.0.303",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
         "Icon.png",
-        "fsharp.core.8.0.101.nupkg.sha512",
+        "fsharp.core.9.0.303.nupkg.sha512",
         "fsharp.core.nuspec",
         "lib/netstandard2.0/FSharp.Core.dll",
         "lib/netstandard2.0/FSharp.Core.xml",
@@ -247,7 +247,8 @@
         "lib/netstandard2.1/ru/FSharp.Core.resources.dll",
         "lib/netstandard2.1/tr/FSharp.Core.resources.dll",
         "lib/netstandard2.1/zh-Hans/FSharp.Core.resources.dll",
-        "lib/netstandard2.1/zh-Hant/FSharp.Core.resources.dll"
+        "lib/netstandard2.1/zh-Hant/FSharp.Core.resources.dll",
+        "paket-installmodel.cache"
       ]
     },
     "Microsoft.Bcl.AsyncInterfaces/9.0.10": {
@@ -514,7 +515,7 @@
   },
   "projectFileDependencyGroups": {
     "net8.0": [
-      "FSharp.Core >= 8.0.101",
+      "FSharp.Core >= 9.0.303",
       "Microsoft.Bcl.AsyncInterfaces >= 9.0.10",
       "Microsoft.Extensions.AI >= 9.10.0",
       "OllamaSharp >= 5.4.7",
@@ -522,37 +523,50 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\filiz\\.nuget\\packages\\": {}
+    "C:\\Users\\emref\\.nuget\\packages\\": {},
+    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "H:\\EF_Forschungspraktikum\\EF_Forschungsprak\\LLM\\Testproj\\Testproj.fsproj",
+      "projectUniqueName": "C:\\Users\\emref\\source\\repos\\EF_Forschungspraktikum\\EF_Forschungsprak\\LLM\\Testproj\\Testproj.fsproj",
       "projectName": "Testproj",
-      "projectPath": "H:\\EF_Forschungspraktikum\\EF_Forschungsprak\\LLM\\Testproj\\Testproj.fsproj",
-      "packagesPath": "C:\\Users\\filiz\\.nuget\\packages\\",
-      "outputPath": "H:\\EF_Forschungspraktikum\\EF_Forschungsprak\\LLM\\Testproj\\obj\\",
+      "projectPath": "C:\\Users\\emref\\source\\repos\\EF_Forschungspraktikum\\EF_Forschungsprak\\LLM\\Testproj\\Testproj.fsproj",
+      "packagesPath": "C:\\Users\\emref\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\emref\\source\\repos\\EF_Forschungspraktikum\\EF_Forschungsprak\\LLM\\Testproj\\obj\\",
       "projectStyle": "PackageReference",
+      "fallbackFolders": [
+        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+      ],
       "configFilePaths": [
-        "\\\\fp0\\dfs\\users\\f\\filiz\\AppData\\NuGet\\NuGet.Config"
+        "C:\\Users\\emref\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
         "net8.0"
       ],
       "sources": {
-        "C:\\Program Files\\dotnet\\sdk\\8.0.101\\FSharp\\library-packs": {},
+        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+        "C:\\Program Files\\dotnet\\sdk\\9.0.304\\FSharp\\library-packs": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
         "net8.0": {
           "targetAlias": "net8.0",
           "projectReferences": {
-            "H:\\EF_Forschungspraktikum\\EF_Forschungsprak\\LLM\\lib\\lib.fsproj": {
-              "projectPath": "H:\\EF_Forschungspraktikum\\EF_Forschungsprak\\LLM\\lib\\lib.fsproj"
+            "C:\\Users\\emref\\source\\repos\\EF_Forschungspraktikum\\EF_Forschungsprak\\LLM\\lib\\lib.fsproj": {
+              "projectPath": "C:\\Users\\emref\\source\\repos\\EF_Forschungspraktikum\\EF_Forschungsprak\\LLM\\lib\\lib.fsproj"
             }
           }
         }
-      }
+      },
+      "restoreAuditProperties": {
+        "enableAudit": "true",
+        "auditLevel": "low",
+        "auditMode": "direct"
+      },
+      "SdkAnalysisLevel": "9.0.300"
     },
     "frameworks": {
       "net8.0": {
@@ -561,7 +575,7 @@
           "FSharp.Core": {
             "include": "Runtime, Compile, Build, Native, Analyzers, BuildTransitive",
             "target": "Package",
-            "version": "[8.0.101, )",
+            "version": "[9.0.303, )",
             "generatePathProperty": true
           },
           "Microsoft.Bcl.AsyncInterfaces": {
@@ -596,7 +610,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.101/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.304/PortableRuntimeIdentifierGraph.json"
       }
     }
   }

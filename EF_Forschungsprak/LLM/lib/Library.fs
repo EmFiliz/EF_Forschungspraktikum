@@ -422,3 +422,16 @@ module Models =
         ollama.ListLocalModelsAsync()
         |> Async.AwaitTask
         |> Async.RunSynchronously
+
+    let pullModel (x: Model) =
+        task {
+            let uri = new Uri("http://localhost:11434/")
+            let ollama = new OllamaApiClient(uri)
+            let enumerator = ollama.PullModelAsync(Model.getModelName x).GetAsyncEnumerator()
+            try
+                while! enumerator.MoveNextAsync() do
+                    let item = enumerator.Current
+                    Console.WriteLine($"{item.Percent}")
+            finally
+                do enumerator.DisposeAsync() |> ignore
+        }
