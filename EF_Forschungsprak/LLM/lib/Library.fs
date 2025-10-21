@@ -414,3 +414,11 @@ module Prompt =
         }
         |> Async.AwaitTask
         |> Async.RunSynchronously
+
+module Models = 
+    let listModel = 
+        let uri = new Uri("http://localhost:11434/")
+        let ollama = new OllamaApiClient(uri)
+        ollama.ListLocalModelsAsync()
+        |> Async.AwaitTask
+        |> Async.RunSynchronously
