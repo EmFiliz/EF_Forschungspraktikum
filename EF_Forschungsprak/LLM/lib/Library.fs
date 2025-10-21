@@ -204,7 +204,7 @@ type Model =
         | Llama3_2_3B -> "llama3.2:3b"
         | Mistral_7B -> "mistral:7b"
         | Qwen2_5_7B -> "qwen2.5:7b"
-        | Phi3_3_8B -> "phi3:latest"
+        | Phi3_3_8B -> "phi3:3.8b"
         | Llava_7B -> "llava:7b"
         | Llama3_8B -> "llama3:8b"
         | Gemma2_9B -> "gemma2:9b"
@@ -397,6 +397,8 @@ module Prompt =
     let getResponseText (client: IChatClient) (prompt: string) =
         getResponse client prompt
         |> _.ToString()
+
+    let initChatHistory () = List<ChatMessage>()
 
     let chatHistory = List<ChatMessage>()
 
