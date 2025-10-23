@@ -382,33 +382,38 @@ type Model =
         :> IChatClient
 
 module Prompt =
-    let getResponse (client: IChatClient) (prompt: string) =
+    let getResponse (client: IChatClient) (options: ChatOptions) (prompt: string) =
         task{
             if String.IsNullOrWhiteSpace(prompt) then
                 return! Task.FromException<ChatResponse>(ArgumentException("Prompt must not be empty"))
             else
                 let messages = [ChatMessage(ChatRole.User, prompt)]
-                let! response = client.GetResponseAsync(messages)
+                let! response = 
+                    client.GetResponseAsync(
+                        messages,
+                        options = options
+                    )
                 return response
         }
         |> Async.AwaitTask
         |> Async.RunSynchronously
 
-    let getResponseText (client: IChatClient) (prompt: string) =
-        getResponse client prompt
+    let getResponseText (client: IChatClient) (options: ChatOptions) (prompt: string) =
+        getResponse client options prompt
         |> _.ToString()
 
     let initChatHistory () = List<ChatMessage>()
 
-    let chatHistory = List<ChatMessage>()
-
-    let getResponseWithChatHistoryText (client: IChatClient) (chatHistory: List<ChatMessage>) (prompt: string) =
+    let getResponseWithChatHistoryText (client: IChatClient) (options: ChatOptions) (chatHistory: List<ChatMessage>) (prompt: string) =
         task{
             if String.IsNullOrWhiteSpace(prompt) then
                 return "Please specify answer!"
             else
                 chatHistory.Add(ChatMessage(ChatRole.User, prompt))
-                let! response = client.GetResponseAsync(chatHistory)
+                let! response = client.GetResponseAsync(
+                    chatHistory,
+                    options = options
+                )
                 chatHistory.Add(ChatMessage(ChatRole.Assistant, response.Text))
                 return response.Text
         }
@@ -416,15 +421,21 @@ module Prompt =
         |> Async.RunSynchronously
 
 module Models = 
-    let listModel = 
+    let listModels (client: IChatClient) = 
         let uri = new Uri("http://localhost:11434/")
         let ollama = new OllamaApiClient(uri)
-        ollama.ListLocalModelsAsync()
+        ollama.ListLocalModelsAsync() 
         |> Async.AwaitTask
         |> Async.RunSynchronously
 
+    /// <summary>
+    /// Pulls the given model from the ollama database
+    /// </summary>
+    /// <param name="x">The Model to pull</param>
+    /// 
+    /// 
     let pullModel (x: Model) =
-        task {
+        task{
             let uri = new Uri("http://localhost:11434/")
             let ollama = new OllamaApiClient(uri)
             let enumerator = ollama.PullModelAsync(Model.getModelName x).GetAsyncEnumerator()
@@ -433,5 +444,33 @@ module Models =
                     let item = enumerator.Current
                     Console.WriteLine($"{item.Percent}")
             finally
-                do enumerator.DisposeAsync() |> ignore
+                do enumerator.DisposeAsync().AsTask() |> ignore
         }
+    
+    let unloadModel (client: IChatClient) =
+        let downCastedClient = (client :?> OllamaApiClient)
+        downCastedClient.RequestModelUnloadAsync(downCastedClient.SelectedModel)
+        |> Async.AwaitTask
+        |> Async.RunSynchronously
+
+    let unloadModelAfter (client: IChatClient) (time: string) =
+            let request = (client :?> OllamaApiClient).GenerateAsync(
+                new Models.GenerateRequest(
+                    Model = (client :?> OllamaApiClient).SelectedModel,
+                    Stream = false,
+                    KeepAlive = time
+                )
+            )
+            let enumerator = request.GetAsyncEnumerator()
+            let rec loop () = 
+                task{
+                    let! hasNext = enumerator.MoveNextAsync()
+                    if hasNext then
+                        let item = enumerator.Current
+                        return! loop()
+                }
+            loop()
+            |> Async.AwaitTask
+            |> Async.RunSynchronously
+    
+
