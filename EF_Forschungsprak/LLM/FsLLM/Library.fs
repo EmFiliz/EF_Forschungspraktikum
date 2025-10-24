@@ -7,6 +7,7 @@ open System.Threading.Tasks
 open Microsoft.Extensions.AI
 open OllamaSharp
 
+
 type Model =
 | Gpt_oss_20B
 | Deepseek_r1_8B
@@ -190,6 +191,7 @@ type Model =
 | Alfred_40B
 | Command_r7b_arabic_7B
 | Kimi_k2_1T_cloud with 
+
 
     static member getModelName m =
         match m with
@@ -382,6 +384,104 @@ type Model =
         :> IChatClient
 
 module Prompt =
+
+    ///<summary>
+    /// Represents the set of configurable options for the chat client
+    /// </summary>
+    type LLMChatOptions = {
+        allowMultipleToolCalls: bool option
+        conversationId : string option
+        frequencyPenalty : float option
+        instructions : string option
+        maxOutputTokens : int option
+        modelID: string option
+        presencePenalty : float option
+        seed : int option
+        temperature : float option
+        topK : int option
+        topP : float option
+    } 
+    
+    with
+        static member init
+            (?allowMultipleToolCalls,
+            ?conversationId,
+            ?frequencyPenalty,
+            ?instructions,
+            ?maxOutputTokens,
+            ?modelID,
+            ?presencePenalty,
+            ?seed,
+            ?temperature,
+            ?topK,
+            ?topP) =
+            {
+            allowMultipleToolCalls = allowMultipleToolCalls
+            conversationId = conversationId
+            frequencyPenalty = frequencyPenalty
+            instructions = instructions
+            maxOutputTokens = maxOutputTokens
+            modelID = modelID
+            presencePenalty = presencePenalty
+            seed = seed
+            temperature = temperature
+            topK = topK
+            topP = topP}
+
+    let toChatOptions (opts: LLMChatOptions) : ChatOptions = 
+        let c = ChatOptions()
+        opts.allowMultipleToolCalls |> Option.iter (fun a -> c.AllowMultipleToolCalls <- a)
+        opts.conversationId |> Option.iter (fun b -> c.ConversationId <- b)
+        opts.frequencyPenalty |> Option.iter (fun d -> c.FrequencyPenalty <- float32 d)
+        opts.instructions |> Option.iter (fun e -> c.Instructions <- e)
+        opts.maxOutputTokens |> Option.iter (fun f -> c.MaxOutputTokens <- int32 f)
+        opts.modelID |> Option.iter (fun g -> c.ModelId <- g)
+        opts.presencePenalty |> Option.iter (fun h -> c.PresencePenalty <- float32 h)
+        opts.seed |> Option.iter (fun i -> c.Seed <- int32 i)
+        opts.temperature |> Option.iter (fun j -> c.Temperature <- float32 j)
+        opts.topK |> Option.iter (fun g -> c.TopK <- int32 g)
+        opts.topP |> Option.iter (fun h -> c.TopP <- float32 h)
+        c
+
+    // ///<summary>
+    // /// Creates a ChatOptions instance initialized from the given Options record.
+    // /// </summary>
+    // type setOptions(opt: Options) =
+    //     inherit ChatOptions()
+    //     do
+    //         base.AllowMultipleToolCalls <- opt.AllowMultipleToolCalls
+    //         base.ConversationId <- string opt.ConversationId
+    //         base.FrequencyPenalty <- float32 opt.FrequencyPenalty
+    //         base.Instructions <- string opt.Instructions
+    //         base.MaxOutputTokens <- int opt.MaxOutputTokens
+    //         base.ModelId <- string opt.ModelId
+    //         base.PresencePenalty <- float32 opt.PresencePenalty
+    //         base.Seed <- int opt.Seed
+    //         base.Temperature <- float32 opt.Temperature
+    //         base.TopK <- int opt.TopK
+    //         base.TopP <- float32 opt.TopP
+    //     member val Options = opt with get, set
+
+
+
+    ///<summary>
+    /// Sends a user prompt to the chat client and returns the response synchronously.
+    /// </summary>
+    /// <param name="client">
+    /// The chat client instance implementing IChatClient.
+    /// </param>
+    /// <param name="options">
+    /// ChatOptions to configure the request.
+    /// </param>
+    /// <param name="prompt">
+    /// The user prompt string. Must not be empty or whitespace.
+    /// </param>
+    /// <returns>
+    /// The chat response as a ChatResponse object.
+    /// </returns>
+    /// <exception cref="System.ArgumentException">
+    /// Thrown if the prompt is empty or whitespace.
+    /// </exception>
     let getResponse (client: IChatClient) (options: ChatOptions) (prompt: string) =
         task{
             if String.IsNullOrWhiteSpace(prompt) then
@@ -398,12 +498,50 @@ module Prompt =
         |> Async.AwaitTask
         |> Async.RunSynchronously
 
+    ///<summary>
+    /// Sends a user prompt to the chat client and returns the response as string.
+    /// </summary>
+    /// <param name="client">
+    /// The chat client instance implementing IChatClient.
+    /// </param>
+    /// <param name="options">
+    /// ChatOptions to configure the request.
+    /// </param>
+    /// <param name="prompt">
+    /// The user prompt string. Must not be empty or whitespace.
+    /// </param>
+    /// <returns>
+    /// The chat response as a string.
+    /// </returns>
     let getResponseText (client: IChatClient) (options: ChatOptions) (prompt: string) =
         getResponse client options prompt
         |> _.ToString()
 
+    ///<summary>
+    /// Creates a new empty chat history list.
+    /// </summary>
     let initChatHistory () = List<ChatMessage>()
 
+    ///<summary>
+    /// Sends a user prompt to the chat client, updates the chat history,
+    /// and returns the assistant's response as a string
+    /// </summary>
+    /// <param name="client">
+    /// The chat client instance implementing IChatClient.
+    /// </param>
+    /// <param name="options">
+    /// ChatOptions to configure the request (e.g., temperature, max tokens).
+    /// </param>
+    /// <param name="chatHistory">
+    /// A mutable list of ChatMessage representing the current conversation history,
+    /// The user prompt and assistant response will be appended to this list.
+    /// </param>
+    /// <param name="prompt">
+    /// The user input string to send to the chat client. Must not be empty of whitespace.
+    /// </param>
+    /// <returns>
+    /// The response from the assistant as a string
+    /// </returns>
     let getResponseWithChatHistoryText (client: IChatClient) (options: ChatOptions) (chatHistory: List<ChatMessage>) (prompt: string) =
         task{
             if String.IsNullOrWhiteSpace(prompt) then
@@ -421,6 +559,13 @@ module Prompt =
         |> Async.RunSynchronously
 
 module Models = 
+
+    ///<summary>
+    /// Lists all local models
+    /// </summary>
+    /// <param name="client">
+    /// The chat client instance implementing IChatClient.
+    /// </param>
     let listModels (client: IChatClient) = 
         let uri = new Uri("http://localhost:11434/")
         let ollama = new OllamaApiClient(uri)
@@ -431,9 +576,9 @@ module Models =
     /// <summary>
     /// Pulls the given model from the ollama database
     /// </summary>
-    /// <param name="x">The Model to pull</param>
-    /// 
-    /// 
+    /// <param name="x">
+    /// The Model to pull.
+    /// </param>
     let pullModel (x: Model) =
         task{
             let uri = new Uri("http://localhost:11434/")
@@ -447,12 +592,27 @@ module Models =
                 do enumerator.DisposeAsync().AsTask() |> ignore
         }
     
+    ///<summary>
+    /// Immediatly unloads model from memory
+    /// </summary>
+    /// <param name="client">
+    /// The chat client instance implementing IChatClient.
+    /// </param>
     let unloadModel (client: IChatClient) =
         let downCastedClient = (client :?> OllamaApiClient)
         downCastedClient.RequestModelUnloadAsync(downCastedClient.SelectedModel)
         |> Async.AwaitTask
         |> Async.RunSynchronously
 
+    ///<summary>
+    /// Schedules unloading of the currently selected model from memory after the specified time.
+    /// </summary>
+    /// <param name="client">
+    /// The chat client instance implementing IChatClient.
+    /// </param>
+    /// <param name="time">
+    /// Time string specifying when to unload the model (e.g., "10s" for 10 seconds, "10m" for 10 minutes).
+    /// </param>
     let unloadModelAfter (client: IChatClient) (time: string) =
             let request = (client :?> OllamaApiClient).GenerateAsync(
                 new Models.GenerateRequest(
