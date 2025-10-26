@@ -443,26 +443,6 @@ module Prompt =
         opts.topP |> Option.iter (fun h -> c.TopP <- float32 h)
         c
 
-    // ///<summary>
-    // /// Creates a ChatOptions instance initialized from the given Options record.
-    // /// </summary>
-    // type setOptions(opt: Options) =
-    //     inherit ChatOptions()
-    //     do
-    //         base.AllowMultipleToolCalls <- opt.AllowMultipleToolCalls
-    //         base.ConversationId <- string opt.ConversationId
-    //         base.FrequencyPenalty <- float32 opt.FrequencyPenalty
-    //         base.Instructions <- string opt.Instructions
-    //         base.MaxOutputTokens <- int opt.MaxOutputTokens
-    //         base.ModelId <- string opt.ModelId
-    //         base.PresencePenalty <- float32 opt.PresencePenalty
-    //         base.Seed <- int opt.Seed
-    //         base.Temperature <- float32 opt.Temperature
-    //         base.TopK <- int opt.TopK
-    //         base.TopP <- float32 opt.TopP
-    //     member val Options = opt with get, set
-
-
 
     ///<summary>
     /// Sends a user prompt to the chat client and returns the response synchronously.
@@ -482,7 +462,7 @@ module Prompt =
     /// <exception cref="System.ArgumentException">
     /// Thrown if the prompt is empty or whitespace.
     /// </exception>
-    let getResponse (client: IChatClient) (options: ChatOptions) (prompt: string) =
+    let getResponse (client: IChatClient) (options: LLMChatOptions) (prompt: string) =
         task{
             if String.IsNullOrWhiteSpace(prompt) then
                 return! Task.FromException<ChatResponse>(ArgumentException("Prompt must not be empty"))
@@ -491,7 +471,7 @@ module Prompt =
                 let! response = 
                     client.GetResponseAsync(
                         messages,
-                        options = options
+                        options = toChatOptions options
                     )
                 return response
         }
@@ -513,7 +493,7 @@ module Prompt =
     /// <returns>
     /// The chat response as a string.
     /// </returns>
-    let getResponseText (client: IChatClient) (options: ChatOptions) (prompt: string) =
+    let getResponseText (client: IChatClient) (options: LLMChatOptions) (prompt: string) =
         getResponse client options prompt
         |> _.ToString()
 
@@ -542,7 +522,7 @@ module Prompt =
     /// <returns>
     /// The response from the assistant as a string
     /// </returns>
-    let getResponseWithChatHistoryText (client: IChatClient) (options: ChatOptions) (chatHistory: List<ChatMessage>) (prompt: string) =
+    let getResponseWithChatHistoryText (client: IChatClient) (options: LLMChatOptions) (chatHistory: List<ChatMessage>) (prompt: string) =
         task{
             if String.IsNullOrWhiteSpace(prompt) then
                 return "Please specify answer!"
@@ -550,7 +530,7 @@ module Prompt =
                 chatHistory.Add(ChatMessage(ChatRole.User, prompt))
                 let! response = client.GetResponseAsync(
                     chatHistory,
-                    options = options
+                    options = toChatOptions options
                 )
                 chatHistory.Add(ChatMessage(ChatRole.Assistant, response.Text))
                 return response.Text
