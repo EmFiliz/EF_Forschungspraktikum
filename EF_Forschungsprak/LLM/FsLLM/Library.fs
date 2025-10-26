@@ -403,6 +403,10 @@ module Prompt =
     } 
     
     with
+
+        ///<summary>
+        /// Shows a set of configurable options for the chat client
+        /// </summary>
         static member init
             (?allowMultipleToolCalls,
             ?conversationId,
@@ -428,6 +432,16 @@ module Prompt =
             topK = topK
             topP = topP}
 
+    ///<summary>
+    /// Converts an <see cref="LLMChatOptions"/> record into a <see cref="ChatOptions"/> instance
+    /// compatible with the underlying chat client (e.g., Ollama)
+    /// </summary>
+    /// <param name="opts">
+    /// The custom <see cref="LLMChatOptions"/>record containing optional configuration values.
+    /// </param>
+    /// <returns>
+    /// A configured <see cref="ChatOptions"/> object ready for use by the chat client.
+    /// </returns>
     let toChatOptions (opts: LLMChatOptions) : ChatOptions = 
         let c = ChatOptions()
         opts.allowMultipleToolCalls |> Option.iter (fun a -> c.AllowMultipleToolCalls <- a)
