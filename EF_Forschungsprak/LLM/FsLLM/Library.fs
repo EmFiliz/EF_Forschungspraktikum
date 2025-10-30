@@ -1,6 +1,7 @@
 ﻿namespace FsLLM
 
 open System
+open System.IO
 open System.Text
 open System.Collections.Generic
 open System.Threading.Tasks
@@ -10,7 +11,9 @@ open OllamaSharp
 
 type Model =
 | Gpt_oss_20B
+| Qwen3_vl_8B
 | Deepseek_r1_8B
+| Qwen3_coder_8B
 | Gemma3_4B
 | Embeddinggemma_300M
 | Qwen3_8B
@@ -196,7 +199,9 @@ type Model =
     static member getModelName m =
         match m with
         | Gpt_oss_20B -> "gpt-oss:20b"
+        | Qwen3_vl_8B -> "qwen3-vl:8b"
         | Deepseek_r1_8B -> "deepseek-r1:8b"
+        | Qwen3_coder_8B -> "qwen3-vl:8b"
         | Gemma3_4B -> "gemma3:4b"
         | Embeddinggemma_300M -> "embeddinggemma:300m"
         | Qwen3_8B -> "qwen3:8b"
@@ -389,17 +394,17 @@ module Prompt =
     /// Represents the set of configurable options for the chat client
     /// </summary>
     type LLMChatOptions = {
-        allowMultipleToolCalls: bool option
-        conversationId : string option
-        frequencyPenalty : float option
-        instructions : string option
-        maxOutputTokens : int option
-        modelID: string option
-        presencePenalty : float option
-        seed : int option
-        temperature : float option
-        topK : int option
-        topP : float option
+        AllowMultipleToolCalls: bool option
+        ConversationId : string option
+        FrequencyPenalty : float option
+        Instructions : string option
+        MaxOutputTokens : int option
+        ModelID: string option
+        PresencePenalty : float option
+        Seed : int option
+        Temperature : float option
+        TopK : int option
+        TopP : float option
     } 
     
     with
@@ -408,29 +413,29 @@ module Prompt =
         /// Shows a set of configurable options for the chat client
         /// </summary>
         static member init
-            (?allowMultipleToolCalls,
-            ?conversationId,
-            ?frequencyPenalty,
-            ?instructions,
-            ?maxOutputTokens,
-            ?modelID,
-            ?presencePenalty,
-            ?seed,
-            ?temperature,
-            ?topK,
-            ?topP) =
+            (?AllowMultipleToolCalls,
+            ?ConversationId,
+            ?FrequencyPenalty,
+            ?Instructions,
+            ?MaxOutputTokens,
+            ?ModelID,
+            ?PresencePenalty,
+            ?Seed,
+            ?Temperature,
+            ?TopK,
+            ?TopP) =
             {
-            allowMultipleToolCalls = allowMultipleToolCalls
-            conversationId = conversationId
-            frequencyPenalty = frequencyPenalty
-            instructions = instructions
-            maxOutputTokens = maxOutputTokens
-            modelID = modelID
-            presencePenalty = presencePenalty
-            seed = seed
-            temperature = temperature
-            topK = topK
-            topP = topP}
+            AllowMultipleToolCalls = AllowMultipleToolCalls
+            ConversationId = ConversationId
+            FrequencyPenalty = FrequencyPenalty
+            Instructions = Instructions
+            MaxOutputTokens = MaxOutputTokens
+            ModelID = ModelID
+            PresencePenalty = PresencePenalty
+            Seed = Seed
+            Temperature = Temperature
+            TopK = TopK
+            TopP = TopP}
 
     ///<summary>
     /// Converts an <see cref="LLMChatOptions"/> record into a <see cref="ChatOptions"/> instance
@@ -444,17 +449,17 @@ module Prompt =
     /// </returns>
     let toChatOptions (opts: LLMChatOptions) : ChatOptions = 
         let c = ChatOptions()
-        opts.allowMultipleToolCalls |> Option.iter (fun a -> c.AllowMultipleToolCalls <- a)
-        opts.conversationId |> Option.iter (fun b -> c.ConversationId <- b)
-        opts.frequencyPenalty |> Option.iter (fun d -> c.FrequencyPenalty <- float32 d)
-        opts.instructions |> Option.iter (fun e -> c.Instructions <- e)
-        opts.maxOutputTokens |> Option.iter (fun f -> c.MaxOutputTokens <- int32 f)
-        opts.modelID |> Option.iter (fun g -> c.ModelId <- g)
-        opts.presencePenalty |> Option.iter (fun h -> c.PresencePenalty <- float32 h)
-        opts.seed |> Option.iter (fun i -> c.Seed <- int32 i)
-        opts.temperature |> Option.iter (fun j -> c.Temperature <- float32 j)
-        opts.topK |> Option.iter (fun g -> c.TopK <- int32 g)
-        opts.topP |> Option.iter (fun h -> c.TopP <- float32 h)
+        opts.AllowMultipleToolCalls |> Option.iter (fun a -> c.AllowMultipleToolCalls <- a)
+        opts.ConversationId |> Option.iter (fun b -> c.ConversationId <- b)
+        opts.FrequencyPenalty |> Option.iter (fun d -> c.FrequencyPenalty <- float32 d)
+        opts.Instructions |> Option.iter (fun e -> c.Instructions <- e)
+        opts.MaxOutputTokens |> Option.iter (fun f -> c.MaxOutputTokens <- int32 f)
+        opts.ModelID |> Option.iter (fun g -> c.ModelId <- g)
+        opts.PresencePenalty |> Option.iter (fun h -> c.PresencePenalty <- float32 h)
+        opts.Seed |> Option.iter (fun i -> c.Seed <- int32 i)
+        opts.Temperature |> Option.iter (fun j -> c.Temperature <- float32 j)
+        opts.TopK |> Option.iter (fun g -> c.TopK <- int32 g)
+        opts.TopP |> Option.iter (fun h -> c.TopP <- float32 h)
         c
 
 
@@ -510,6 +515,30 @@ module Prompt =
     let getResponseText (client: IChatClient) (options: LLMChatOptions) (prompt: string) =
         getResponse client options prompt
         |> _.ToString()
+
+
+    let getMultipleResponses (client: IChatClient) (options: LLMChatOptions) (prompt: string[]) =
+        task{
+            if prompt.Length = 0 || Array.exists String.IsNullOrWhiteSpace prompt then
+                return! Task.FromException<string[]>(ArgumentException("Prompt must not be empty!"))
+            else
+                let tasks =
+                    prompt
+                    |> Array.map (fun p ->
+                        let messages = [ChatMessage(ChatRole.User, p)]
+                        client.GetResponseAsync(messages, options = toChatOptions options)
+                    )
+                let! responses = Task.WhenAll tasks
+                return (responses |> Array.map (fun r -> r.Text + "\n"))
+        }
+        |> Async.AwaitTask
+        |> Async.RunSynchronously
+
+    // let getResponseTextFromTextFile (client: IChatClient) (options: LLMChatOptions) (path: string) =
+    //     let File = File.ReadAllLines(path)
+    //     task{
+    //         if File = 0 || Array.exists
+    //     }
 
     ///<summary>
     /// Creates a new empty chat history list.
