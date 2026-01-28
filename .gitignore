@@ -175,14 +175,7 @@ TestResults.xml
 # Exclude project specific directories and files
 # ===================================================
 
-DB_Arabidopsis_Thaliana/
-Get_All_PUBMED_Project_IDs/
-PDFReader_PyMuPDF/
-RAG_C#/
-RAG_python/
-RAG_python_with_Langchain/
-
-
+Side_project/
 
 
 .fake
