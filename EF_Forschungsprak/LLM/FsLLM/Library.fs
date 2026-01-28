@@ -1,8 +1,6 @@
 ﻿namespace FsLLM
 
 open System
-open System.IO
-open System.Text
 open System.Collections.Generic
 open System.Threading.Tasks
 open Microsoft.Extensions.AI
@@ -385,8 +383,31 @@ type Model =
 
 
     static member initClient (m: Model) =
-        new OllamaApiClient(new Uri("http://localhost:11434/"), Model.getModelName m)
-        :> IChatClient
+        task{
+            let uri = new Uri("http://localhost:11434/")
+            let ollama = new OllamaApiClient(uri)
+            let modelName = Model.getModelName m
+
+            let! localModels = ollama.ListLocalModelsAsync()
+
+            let exists =
+                localModels
+                |> Seq.exists (fun s -> s.Name = modelName || s.Name.StartsWith(modelName + ":"))
+            if not exists then
+                printfn "Model %s not found. Start downloading..." modelName
+                let enumerator = ollama.PullModelAsync(modelName).GetAsyncEnumerator()
+                try
+                    while! enumerator.MoveNextAsync() do
+                        let item = enumerator.Current
+                        if not (isNull item) then
+                            printfn "Download: %f%% - %s" item.Percent item.Status
+                finally
+                    let _ = enumerator.DisposeAsync()
+                    ()
+            
+            ollama.SelectedModel <- modelName
+            return ollama :> IChatClient
+        }
 
 module Prompt =
 
@@ -484,7 +505,7 @@ module Prompt =
     let getResponse (client: IChatClient) (options: LLMChatOptions) (prompt: string) =
         task{
             if String.IsNullOrWhiteSpace(prompt) then
-                return! Task.FromException<ChatResponse>(ArgumentException("Prompt must not be empty"))
+                return! Task.FromException<ChatResponse>(ArgumentException("Query must not be empty"))
             else
                 let messages = [ChatMessage(ChatRole.User, prompt)]
                 let! response = 
@@ -516,11 +537,25 @@ module Prompt =
         getResponse client options prompt
         |> _.ToString()
 
-
+    ///<summary>
+    /// Sends an array of user prompt to the chat client and returns the response as string.
+    /// </summary>
+    /// <param name="client">
+    /// The chat client instance implementing IChatClient.
+    /// </param>
+    /// <param name="options">
+    /// ChatOptions to configure the request.
+    /// </param>
+    /// <param name="prompt">
+    /// The user prompt string. Must not be empty or whitespace.
+    /// </param>
+    /// <returns>
+    /// The chat response as a string.
+    /// </returns>
     let getMultipleResponses (client: IChatClient) (options: LLMChatOptions) (prompt: string[]) =
         task{
             if prompt.Length = 0 || Array.exists String.IsNullOrWhiteSpace prompt then
-                return! Task.FromException<string[]>(ArgumentException("Prompt must not be empty!"))
+                return! Task.FromException<string[]>(ArgumentException("Query must not be empty!"))
             else
                 let tasks =
                     prompt
@@ -533,12 +568,6 @@ module Prompt =
         }
         |> Async.AwaitTask
         |> Async.RunSynchronously
-
-    // let getResponseTextFromTextFile (client: IChatClient) (options: LLMChatOptions) (path: string) =
-    //     let File = File.ReadAllLines(path)
-    //     task{
-    //         if File = 0 || Array.exists
-    //     }
 
     ///<summary>
     /// Creates a new empty chat history list.
@@ -581,6 +610,90 @@ module Prompt =
         |> Async.AwaitTask
         |> Async.RunSynchronously
 
+    ///<summary>
+    /// Prints the entire ChatHistory as Text
+    /// </summary>
+    /// <param name="history">
+    /// A mutable list of ChatMessage representing the current conversation history,
+    /// The user prompt and assistant response will be appended to this list.
+    /// </param>
+    /// <returns>
+    /// ChatHistory as string
+    /// </returns>
+    let printHistoryAsText (history: List<ChatMessage>) =
+        history
+        |> Seq.map (fun m ->
+            let role = m.Role.ToString().ToUpper()
+            let timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
+            $"--- {role} ({timestamp}) ---\n{m.Text}\n")
+        |> String.concat "\n\n"
+
+    ///<summary>
+    /// Saves the entire ChatHistory in a text file
+    /// </summary>
+    /// <param name="path">
+    /// Filename as string to write into
+    /// </param>
+    /// <param name="client">
+    /// The chat client instance implementing IChatClient.
+    /// </param>
+    /// <param name="history">
+    /// A mutable list of ChatMessage representing the current conversation history,
+    /// The user prompt and assistant response will be appended to this list.
+    /// </param>
+    /// <param name="options">
+    /// ChatOptions
+    /// </param>
+    /// <returns>
+    /// Returns a .txt file with ChatHistory and options parameter.
+    /// </returns>
+    let saveChatHistoryAsMarkdownFile (path: string) (client: IChatClient) (history: List<ChatMessage>) (options: LLMChatOptions) =
+        let display opt =
+            match opt with
+            | Some v -> $"**{v}**"
+            | None -> "Default"
+        let modelName =
+            match client with
+            | :? OllamaApiClient as ollama -> ollama.SelectedModel
+            | _ -> "Unknow model"
+        let header = $"""
+# Chat Protocol
+> Generated on {DateTime.Now}
+
+## Configuration
+| Option | Value |
+| :--- | :--- |
+| **Model** | `{modelName}` |
+| **Temperature** | {display options.Temperature} |
+| **Max Tokens** | {display options.MaxOutputTokens} |
+| **Top P** | {display options.TopP} |
+| **Seed** | {display options.Seed} |
+| **History Length** | {history.Count} messages |
+
+---
+
+## Converation
+
+"""
+        let body = 
+            history 
+            |> Seq.map (fun m -> 
+                let roleName = m.Role.ToString().ToUpper()
+                if m.Role = ChatRole.User then
+                    $"""### USER
+> {m.Text.Replace("\n", "\n> ")}"""
+                elif m.Role = ChatRole.Assistant then
+                    $"""### ASSISTANT
+{m.Text}"""
+                else
+                    $"""### {roleName}
+{m.Text}"""
+            )
+            |> String.concat "\n\n---\n\n"
+        let finalPath = if path.EndsWith(".md") then path else path + ".md"
+        IO.File.WriteAllText(finalPath, header + body)
+        printfn "Chat history successfully saved to: %s" finalPath
+
 module Models = 
 
     ///<summary>
@@ -596,25 +709,6 @@ module Models =
         |> Async.AwaitTask
         |> Async.RunSynchronously
 
-    /// <summary>
-    /// Pulls the given model from the ollama database
-    /// </summary>
-    /// <param name="x">
-    /// The Model to pull.
-    /// </param>
-    let pullModel (x: Model) =
-        task{
-            let uri = new Uri("http://localhost:11434/")
-            let ollama = new OllamaApiClient(uri)
-            let enumerator = ollama.PullModelAsync(Model.getModelName x).GetAsyncEnumerator()
-            try
-                while! enumerator.MoveNextAsync() do
-                    let item = enumerator.Current
-                    Console.WriteLine($"{item.Percent}")
-            finally
-                do enumerator.DisposeAsync().AsTask() |> ignore
-        }
-    
     ///<summary>
     /// Immediatly unloads model from memory
     /// </summary>
@@ -623,9 +717,14 @@ module Models =
     /// </param>
     let unloadModel (client: IChatClient) =
         let downCastedClient = (client :?> OllamaApiClient)
-        downCastedClient.RequestModelUnloadAsync(downCastedClient.SelectedModel)
+        let modelName = downCastedClient.SelectedModel
+
+        downCastedClient.RequestModelUnloadAsync(modelName)
         |> Async.AwaitTask
         |> Async.RunSynchronously
+
+        printfn "%s has been successfully unloaded" downCastedClient.SelectedModel
+        
 
     ///<summary>
     /// Schedules unloading of the currently selected model from memory after the specified time.
@@ -634,26 +733,28 @@ module Models =
     /// The chat client instance implementing IChatClient.
     /// </param>
     /// <param name="time">
-    /// Time string specifying when to unload the model (e.g., "10s" for 10 seconds, "10m" for 10 minutes).
+    /// Time string specifying when to unload the model (e.g., "10s" for 10 seconds, "10m" for 10 minutes, "10h" for 10 hours).
     /// </param>
-    let unloadModelAfter (client: IChatClient) (time: string) =
-            let request = (client :?> OllamaApiClient).GenerateAsync(
-                new Models.GenerateRequest(
-                    Model = (client :?> OllamaApiClient).SelectedModel,
-                    Stream = false,
-                    KeepAlive = time
-                )
-            )
-            let enumerator = request.GetAsyncEnumerator()
-            let rec loop () = 
-                task{
-                    let! hasNext = enumerator.MoveNextAsync()
-                    if hasNext then
-                        let item = enumerator.Current
-                        return! loop()
-                }
-            loop()
-            |> Async.AwaitTask
-            |> Async.RunSynchronously
-    
+
+    let unloadModelAfterTime (client: IChatClient) (time: string) =
+        let unloadModelAfter (client: IChatClient) (time: string) =
+            task{
+                let ollama = client :?> OllamaApiClient
+
+                let request = 
+                    Models.GenerateRequest(
+                        Model = ollama.SelectedModel,
+                        KeepAlive = time,
+                        Stream = false
+                    )
+
+                let enumerator = ollama.GenerateAsync(request).GetAsyncEnumerator()
+
+                let! _ = enumerator.MoveNextAsync()
+
+                printfn "Model %s will be pulled out after %s seconds." ollama.SelectedModel time
+            }
+        unloadModelAfter client time |> ignore
+        printfn "Model will be unloaded after %s" time
+
 
