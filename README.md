@@ -2,7 +2,7 @@
 
 ## Getting started
 
-To use FsLLM, ensure you have [Ollama][https://ollama.com/] installed and running on your local machine.
+To use FsLLM, ensure you have [Ollama](https://ollama.com/) installed and running on your local machine.
 
 ---
 
